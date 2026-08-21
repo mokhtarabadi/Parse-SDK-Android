@@ -31,6 +31,8 @@ class ParseHttpClient {
 
     private final OkHttpClient okHttpClient;
     private boolean hasExecuted;
+    // Task 718: Track the in-flight Call so cancel() can interrupt it.
+    private volatile Call currentCall;
 
     ParseHttpClient(@Nullable OkHttpClient.Builder builder) {
 
@@ -63,9 +65,38 @@ class ParseHttpClient {
         Request okHttpRequest = getRequest(parseRequest);
         Call okHttpCall = okHttpClient.newCall(okHttpRequest);
 
-        Response okHttpResponse = okHttpCall.execute();
+        // Task 718: Store the Call reference so cancel() can interrupt the HTTP call.
+        currentCall = okHttpCall;
+        try {
+            Response okHttpResponse = okHttpCall.execute();
+            return getResponse(okHttpResponse);
+        } finally {
+            // Clear reference once the call completes (success or failure).
+            currentCall = null;
+        }
+    }
 
-        return getResponse(okHttpResponse);
+    /**
+     * Task 718: Cancels the in-flight OkHttp call, if any. Called from
+     * {@link ParseQuery#cancel()} to actually interrupt the HTTP request
+     * rather than just setting a Task flag.
+     */
+    void cancel() {
+        Call call = currentCall;
+        if (call != null) {
+            call.cancel();
+        }
+    }
+
+    /**
+     * Task 718: Cancels the in-flight call on the default REST client.
+     * This is the entry point for {@link ParseQuery#cancel()}.
+     */
+    static void cancelCurrentCall() {
+        ParseHttpClient client = ParsePlugins.get().restClient();
+        if (client != null) {
+            client.cancel();
+        }
     }
 
     ParseHttpResponse getResponse(Response okHttpResponse) {

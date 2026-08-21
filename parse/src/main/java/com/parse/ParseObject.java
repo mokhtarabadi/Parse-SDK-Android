@@ -2341,6 +2341,43 @@ public class ParseObject implements Parcelable {
     }
 
     /**
+     * Wraps {@link #saveEventually()} in a background thread to prevent ANR when called from
+     * the main thread with deep object graphs. The expensive {@code collectDirtyChildren}
+     * traversal runs off the calling thread; the returned {@link Task} resolves on the
+     * main thread exactly like {@link #saveEventually()}.
+     *
+     * <p>Equivalent to {@code saveEventually()} but safe to call from the UI thread.</p>
+     *
+     * @return A {@link Task} that is resolved when the save completes.
+     */
+    public final Task<Void> saveEventuallyInBackground() {
+        if (android.os.Looper.myLooper() != android.os.Looper.getMainLooper()) {
+            // Already on a background thread — no wrapping needed
+            return saveEventually();
+        }
+        final com.parse.boltsinternal.TaskCompletionSource<Void> tcs =
+                new com.parse.boltsinternal.TaskCompletionSource<>();
+        new Thread(() -> {
+            try {
+                saveEventually().onSuccess(task -> {
+                    tcs.trySetResult(null);
+                    return null;
+                }).continueWith(task -> {
+                    if (task.isFaulted()) {
+                        tcs.trySetError(task.getError());
+                    } else if (task.isCancelled()) {
+                        tcs.trySetCancelled();
+                    }
+                    return null;
+                });
+            } catch (Exception e) {
+                tcs.trySetError(e);
+            }
+        }, "ParseSaveEventually").start();
+        return tcs.getTask();
+    }
+
+    /**
      * Saves this object to the server at some unspecified time in the future, even if Parse is
      * currently inaccessible. Use this when you may not have a solid network connection, and don't
      * need to know when the save completes. If there is some problem with the object such that it
@@ -2363,6 +2400,11 @@ public class ParseObject implements Parcelable {
 
         if (Parse.isAllowCustomObjectId() && getObjectId() == null) {
             return Task.forError(new ParseException(104, "ObjectId must not be null"));
+        }
+
+        // Fix Issue #1007: Warn if called on main thread to prevent ANR
+        if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
+            android.util.Log.w("ParseObject", "saveEventually() called on main thread. Consider calling from background thread to prevent ANR.");
         }
 
         final ParseOperationSet operationSet;

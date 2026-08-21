@@ -1,18 +1,20 @@
 apply plugin: "com.android.library"
-apply plugin: "kotlin-android"
 apply plugin: "maven-publish"
-apply plugin: "io.freefair.android-javadoc-jar"
-apply plugin: "io.freefair.android-sources-jar"
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    compileSdk 35
+    namespace "com.parse.google"
 
     defaultConfig {
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        minSdk 23
+        targetSdk 35
     }
 
-    lintOptions {
+    buildFeatures {
+        buildConfig true
+    }
+
+    lint {
         abortOnError false
     }
 
@@ -23,20 +25,19 @@ android {
 
     buildTypes {
         debug {
-            testCoverageEnabled = true
+            enableAndroidTestCoverage = true
+            enableUnitTestCoverage = true
             buildConfigField("String","PARSE_VERSION","\"${version}\"")
         }
         release {
             minifyEnabled false
-            testCoverageEnabled = false
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            enableAndroidTestCoverage = false
+            enableUnitTestCoverage = false
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             buildConfigField("String","PARSE_VERSION","\"${version}\"")
         }
     }
 
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
 }
 
 dependencies {
@@ -45,14 +46,4 @@ dependencies {
     api "androidx.activity:activity-ktx:1.5.1"
     api "androidx.fragment:fragment-ktx:1.5.2"
     implementation project(":parse")
-}
-
-afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                from components.release
-            }
-        }
-    }
 }

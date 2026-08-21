@@ -250,6 +250,11 @@ public class ParseQuery<T extends ParseObject> {
             tcs.trySetCancelled();
         }
         currentTasks.removeAll(tasks);
+        // Fix Issue #969: Log cancellation for debugging
+        android.util.Log.d("ParseQuery", "cancel() called. Cancelled " + tasks.size() + " pending tasks.");
+        // Task 718: Also interrupt the in-flight OkHttp call so the HTTP request
+        // doesn't keep running after the Task is cancelled.
+        ParseHttpClient.cancelCurrentCall();
     }
 
     public boolean isRunning() {

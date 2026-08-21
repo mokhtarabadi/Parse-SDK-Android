@@ -1,31 +1,35 @@
 apply plugin: "com.android.library"
-apply plugin: "kotlin-android"
 apply plugin: "maven-publish"
-apply plugin: "io.freefair.android-javadoc-jar"
-apply plugin: "io.freefair.android-sources-jar"
 
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    compileSdk 35
+    namespace "com.parse.rxjava"
 
     defaultConfig {
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        minSdk 23
+        targetSdk 35
     }
 
-    lintOptions {
+    buildFeatures {
+        buildConfig true
+    }
+
+    lint {
         abortOnError false
     }
 
     buildTypes {
         debug {
-            testCoverageEnabled = true
+            enableAndroidTestCoverage = true
+            enableUnitTestCoverage = true
             buildConfigField("String","PARSE_VERSION","\"${version}\"")
         }
         release {
             minifyEnabled false
-            testCoverageEnabled = false
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            enableAndroidTestCoverage = false
+            enableUnitTestCoverage = false
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             buildConfigField("String","PARSE_VERSION","\"${version}\"")
         }
     }
@@ -35,23 +39,10 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
 }
 
 dependencies {
     api "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     api 'io.reactivex.rxjava3:rxjava:3.1.4'
     implementation project(":parse")
-}
-
-afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                from components.release
-            }
-        }
-    }
 }

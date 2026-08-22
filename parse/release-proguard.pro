@@ -10,4 +10,3 @@
 
 # Retracing stacktraces
 -keepattributes LineNumberTable,SourceFile
--renamesourcefileattribute SourceFile

@@ -236,14 +236,41 @@ public class ParseUser extends ParseObject {
         return current != null ? current.getSessionToken() : null;
     }
 
+    // Task 720: In-memory cache for session token to avoid disk I/O per query (1000+ qps → 1000 disk reads)
+    private static volatile String sCachedSessionToken = null;
+    private static volatile long sCachedTokenTimestamp = 0;
+    private static final long TOKEN_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+    // F6: Public method to invalidate cached session token on session invalidation
+    public static void invalidateCachedSessionToken() {
+        sCachedSessionToken = null;
+        sCachedTokenTimestamp = 0;
+    }
+
     // region Getter/Setter helper methods
 
     public static Task<String> getCurrentSessionTokenAsync() {
-        return getCurrentUserController().getCurrentSessionTokenAsync();
+        String cached = sCachedSessionToken;
+        long ts = sCachedTokenTimestamp;
+        if (cached != null && System.currentTimeMillis() - ts < TOKEN_CACHE_TTL_MS) {
+            return com.parse.boltsinternal.Task.forResult(cached);
+        }
+        return getCurrentUserController()
+                .getCurrentSessionTokenAsync()
+                .onSuccess(
+                        task -> {
+                            String token = task.getResult();
+                            sCachedSessionToken = token;
+                            sCachedTokenTimestamp = System.currentTimeMillis();
+                            return token;
+                        });
     }
 
     // Persists a user as currentUser to disk, and into the singleton
     private static Task<Void> saveCurrentUserAsync(ParseUser user) {
+        String token = user != null ? user.getSessionToken() : null;
+        sCachedSessionToken = token;
+        sCachedTokenTimestamp = System.currentTimeMillis();
         return getCurrentUserController().setAsync(user);
     }
 
@@ -1127,6 +1154,9 @@ public class ParseUser extends ParseObject {
             State newState = getState().newBuilder().sessionToken(null).isNew(false).build();
             isCurrentUser = false;
             setState(newState);
+            // Task 720: Clear in-memory token cache on logout
+            sCachedSessionToken = null;
+            sCachedTokenTimestamp = 0;
         }
 
         if (revoke) {

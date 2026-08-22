@@ -2355,25 +2355,34 @@ public class ParseObject implements Parcelable {
             // Already on a background thread — no wrapping needed
             return saveEventually();
         }
+        // Task 720: Use bounded background executor instead of raw new Thread per call
+        // Prevents thread storm under burst (1000+ messages) — was new Thread("ParseSaveEventually") per call
         final com.parse.boltsinternal.TaskCompletionSource<Void> tcs =
                 new com.parse.boltsinternal.TaskCompletionSource<>();
-        new Thread(() -> {
-            try {
-                saveEventually().onSuccess(task -> {
-                    tcs.trySetResult(null);
-                    return null;
-                }).continueWith(task -> {
-                    if (task.isFaulted()) {
-                        tcs.trySetError(task.getError());
-                    } else if (task.isCancelled()) {
-                        tcs.trySetCancelled();
+        com.parse.boltsinternal.Task.call(
+                () -> {
+                    try {
+                        saveEventually()
+                                .onSuccess(
+                                        task -> {
+                                            tcs.trySetResult(null);
+                                            return null;
+                                        })
+                                .continueWith(
+                                        task -> {
+                                            if (task.isFaulted()) {
+                                                tcs.trySetError(task.getError());
+                                            } else if (task.isCancelled()) {
+                                                tcs.trySetCancelled();
+                                            }
+                                            return null;
+                                        });
+                    } catch (Exception e) {
+                        tcs.trySetError(e);
                     }
                     return null;
-                });
-            } catch (Exception e) {
-                tcs.trySetError(e);
-            }
-        }, "ParseSaveEventually").start();
+                },
+                com.parse.boltsinternal.Task.BACKGROUND_EXECUTOR);
         return tcs.getTask();
     }
 

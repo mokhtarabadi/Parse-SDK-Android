@@ -16,12 +16,13 @@ import static org.junit.Assert.assertTrue;
 import java.util.HashMap;
 import java.util.Map;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
 
 /**
- * Unit tests for {@link ParseExperiments}: determinism, boundaries, fail-closed
- * gates, and definition lookup across JSONArray/List shapes.
+ * Unit tests for {@link ParseExperiments}: determinism, boundaries, fail-closed gates, and
+ * definition lookup across JSONArray/List shapes.
  */
 public class ParseExperimentsTest {
 
@@ -33,7 +34,8 @@ public class ParseExperimentsTest {
         return new ParseConfig(params);
     }
 
-    private static JSONObject experiment(String key, double pct, boolean killed) {
+    private static JSONObject experiment(String key, double pct, boolean killed)
+            throws JSONException {
         JSONObject entry = new JSONObject();
         entry.put("key", key);
         entry.put("traffic_pct", pct);
@@ -76,7 +78,20 @@ public class ParseExperimentsTest {
     }
 
     @Test
-    public void percentZeroAndHundred() {
+    public void extendedParityVectors() {
+        // Cross-runtime drift gate: identical table lives in cloud
+        // abBucket.test.js and dumble ParseExperimentsSdkTest.
+        assertEquals(81, ParseExperiments.bucketFor("vip_for_new_10", "3P0ES1vVWC"));
+        assertEquals(75, ParseExperiments.bucketFor("vip_for_new_10", "probe-004"));
+        assertEquals(8, ParseExperiments.bucketFor("exp-a", "probe-user-002"));
+        assertEquals(20, ParseExperiments.bucketFor("exp-b", "probe-user-001"));
+        assertEquals(20, ParseExperiments.bucketFor("welcome_50", "vftE0NKr0C"));
+        assertEquals(81, ParseExperiments.bucketFor("welcome_50", "NXqFcxQhF2"));
+        assertEquals(88, ParseExperiments.bucketFor("ramp-check", "ramp-user-42"));
+    }
+
+    @Test
+    public void percentZeroAndHundred() throws JSONException {
         JSONArray experiments = new JSONArray();
         experiments.put(experiment("e0", 0.0, false));
         experiments.put(experiment("e100", 100.0, false));
@@ -86,7 +101,7 @@ public class ParseExperimentsTest {
     }
 
     @Test
-    public void failClosedOnKillMissingDisabled() {
+    public void failClosedOnKillMissingDisabled() throws JSONException {
         JSONArray experiments = new JSONArray();
         experiments.put(experiment("killed", 100.0, true));
         experiments.put(experiment("live", 100.0, false));
@@ -112,7 +127,7 @@ public class ParseExperimentsTest {
     }
 
     @Test
-    public void wideningKeepsEarlyUsers() {
+    public void wideningKeepsEarlyUsers() throws JSONException {
         // Sticky-expand proof: every user in at 10% stays in at 50%.
         JSONArray experiments = new JSONArray();
         experiments.put(experiment("ramp", 10.0, false));

@@ -290,7 +290,9 @@ public class Parse {
         allowCustomObjectId = false;
     }
 
-    /** @return {@code True} if {@link #initialize} has been called, otherwise {@code false}. */
+    /**
+     * @return {@code True} if {@link #initialize} has been called, otherwise {@code false}.
+     */
     static boolean isInitialized() {
         return ParsePlugins.get() != null;
     }
@@ -605,6 +607,7 @@ public class Parse {
             /** The default maximum number of bytes to use for the Parse cache on disk. */
             public static final int DEFAULT_MAX_KEY_VALUE_CACHE_BYTES =
                     ParseKeyValueCache.DEFAULT_MAX_KEY_VALUE_CACHE_BYTES;
+
             /** The default maximum number of files to store in the Parse cache on disk. */
             public static final int DEFAULT_MAX_KEY_VALUE_CACHE_FILES =
                     ParseKeyValueCache.DEFAULT_MAX_KEY_VALUE_CACHE_FILES;

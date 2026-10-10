@@ -26,3 +26,8 @@
 - Decision: deterministic hash bucketing over `ParseConfig` definitions, parity-tested vs cloud/JS and dumble.
 - Reason: per-user variation without per-user Config payloads or assignment tables.
 - Status: accepted (in fork history).
+
+## 2026-10-10 — Task 005: token-cache TTL accepted as trade-off (Brain B1 deferred)
+- Decision: keep 5-min in-memory session-token TTL; no shortening without product call. Invalidate paths (`saveCurrentUserAsync` refresh, logout clear, `invalidateCachedSessionToken()`) stay as-is.
+- Reason: server-side revoke inside the window reuses the old token by design of any TTL cache; disk remains source of truth on restart.
+- Status: accepted (deferred fix, logged).

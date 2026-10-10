@@ -39,13 +39,16 @@ allprojects {
         }
         kotlin {
             target '**/*.kt'
-            ktlint().userData(["disabled_rules": "no-wildcard-imports"])
+            ktlint().editorConfigOverride(["disabled_rules": "no-wildcard-imports"])
             trimTrailingWhitespace()
             indentWithSpaces()
             endWithNewline()
         }
         format 'misc', {
             target '**/*.gradle', '**/*.md', '**/.gitignore'
+            // Machine-managed dirs: task files carry injected git diffs, context-reports carry
+            // graph output — the formatter must not rewrite them (would churn on every stage).
+            targetExclude 'tasks/**', 'context-reports/**'
             indentWithSpaces()
             trimTrailingWhitespace()
             endWithNewline()
@@ -61,7 +64,7 @@ allprojects {
 }
 
 ext {
-    compileSdkVersion = 35
+    compileSdkVersion = 36
 
     minSdkVersion = 23
     targetSdkVersion = 35
@@ -69,5 +72,5 @@ ext {
     mockitoCoreVersion = '4.6.1'
     junitVersion = "4.13.2"
     jupiterVersion = "5.6.0"
-    robolectricVersion = "4.7"
+    robolectricVersion = "4.14.1"
 }

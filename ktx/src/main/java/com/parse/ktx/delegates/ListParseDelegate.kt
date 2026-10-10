@@ -18,7 +18,7 @@ class ListParseDelegate<T>(private val name: String?) {
     operator fun setValue(
         parseObject: ParseObject,
         property: KProperty<*>,
-        value: MutableList<T>?
+        value: MutableList<T>?,
     ) {
         parseObject.putOrIgnore(name ?: property.name, value)
     }

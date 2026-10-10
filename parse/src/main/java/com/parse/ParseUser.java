@@ -236,7 +236,8 @@ public class ParseUser extends ParseObject {
         return current != null ? current.getSessionToken() : null;
     }
 
-    // Task 720: In-memory cache for session token to avoid disk I/O per query (1000+ qps → 1000 disk reads)
+    // Task 720: In-memory cache for session token to avoid disk I/O per query (1000+ qps → 1000
+    // disk reads)
     private static volatile String sCachedSessionToken = null;
     private static volatile long sCachedTokenTimestamp = 0;
     private static final long TOKEN_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
@@ -744,7 +745,9 @@ public class ParseUser extends ParseObject {
         }
     }
 
-    /** @return the session token for a user, if they are logged in. */
+    /**
+     * @return the session token for a user, if they are logged in.
+     */
     public String getSessionToken() {
         return getState().sessionToken();
     }

@@ -17,7 +17,7 @@
 ## 3. Formatting & Quality Gates (CI-blocking)
 
 - Spotless is law: `googleJavaFormat(AOSP)` for Java, `ktlint` (`no-wildcard-imports` disabled rule) for Kotlin. Run `./gradlew spotlessCheck --no-daemon` before claiming done; fix with `./gradlew spotlessApply --no-daemon`.
-- Tests: `./gradlew --no-daemon clean jacocoTestReport` (JDK 11). Unit tests = Robolectric + JUnit4/Jupiter + Mockito + MockWebServer under `*/src/test/`. Do not claim completion without a successful exit code recorded in the task file.
+- Tests: `./gradlew --no-daemon clean jacocoTestReport` is the CI entry, but root `jacocoTestReport` does not fan out to modules — the real unit gate is `./gradlew :parse:testDebugUnitTest --no-daemon` (JDK 17; Robolectric 4.14.1). Verification runs start with the `rtk test` prefix. Do not claim completion without a successful exit code recorded in the task file.
 - `lint { abortOnError false }` — lint never blocks, Spotless and tests do.
 
 ## 4. Kanban Lifecycle (V6, WIP ≤ 3)
@@ -36,3 +36,14 @@
 - Read `.opencode/memory/index.md` at task start; `search_memory`/`read_memory` for stack quirks and test commands. `store_memory` only for new explicit project rules or reusable quirks — never task progress or code snippets.
 - Heavy discovery goes to the `cognitive-discovery` subagent (code-search skill); executor keeps context for implementation. Fallback to direct tools when subagents are unavailable.
 - Keep the task file holding: active id + lane, `[fed-context]` citations, persona/seat, mode lock, staged diff hash, blockers, next action.
+
+## 7. Skill Loading
+
+- Auto-load by stack: Android/Kotlin → `android-kotlin`. New task files → `task-generator`; closure review → `archive-tasks` + `task-lint`; complex bug/deadlock/silent failure → `debug-instrumentation`; memory read/write → `project-memory`.
+- An XML task's `<context_phase>` names win over this matrix. Never guess a seat or skill on low confidence — stop and ask.
+
+## 8. Halt & Circuit Breakers
+
+- Halt (ask, don't guess): ambiguous/fragmented direct orders; destructive or irreversible next action with no rollback; missing credential only the Manager holds; self-contradicting task file.
+- Circuit breakers (stop + surface): same tool 5+ times with near-identical args; actions drifting from the task goal; disk state diverging from assumptions; 50+ steps without measurable progress.
+- Buffer isolation: heavy discovery goes to subagents via direct tools when available; never paste large dumps inline — cite file + line.

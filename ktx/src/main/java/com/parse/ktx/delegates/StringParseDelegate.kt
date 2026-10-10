@@ -11,7 +11,7 @@ import kotlin.reflect.KProperty
  */
 class StringParseDelegate<S : String?>(
     private val name: String?,
-    private val filter: (String) -> String
+    private val filter: (String) -> String,
 ) {
 
     operator fun getValue(parseObject: ParseObject, property: KProperty<*>): S {
@@ -31,7 +31,7 @@ class StringParseDelegate<S : String?>(
  */
 inline fun nullableStringAttribute(
     name: String? = null,
-    noinline filter: (String) -> String = { it }
+    noinline filter: (String) -> String = { it },
 ) = StringParseDelegate<String?>(name, filter)
 
 /**
@@ -40,5 +40,5 @@ inline fun nullableStringAttribute(
  */
 inline fun stringAttribute(
     name: String? = null,
-    noinline filter: (String) -> String = { it }
+    noinline filter: (String) -> String = { it },
 ) = StringParseDelegate<String>(name, filter)

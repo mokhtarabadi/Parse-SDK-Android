@@ -14,14 +14,14 @@ import kotlin.reflect.KProperty
 class EnumParseDelegate<T : Enum<T>>(
     private val name: String?,
     private val default: T?,
-    private val enumClass: Class<T>
+    private val enumClass: Class<T>,
 ) {
 
     operator fun getValue(parseObject: ParseObject, property: KProperty<*>): T {
         return try {
             java.lang.Enum.valueOf(
                 enumClass,
-                parseObject.getString(name ?: property.name)!!.uppercase()
+                parseObject.getString(name ?: property.name)!!.uppercase(),
             )
         } catch (e: Exception) {
             default ?: throw e

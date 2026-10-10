@@ -1,3 +1,11 @@
+# Changelog (fork: mokhtarabadi/Parse-SDK-Android)
+
+## [Unreleased] — 4.4.1
+
+- Toolchain: AGP 9.2.1, Kotlin 1.9.22, compileSdk 35, minSdk 23, targetSdk 35, Robolectric 4.14.1, CI on JDK 17.
+- Core: cancellable `ParseQuery` HTTP, background `saveEventually`, cached session token, sticky `ParseExperiments` bucketing.
+- JitPack: `com.github.mokhtarabadi.Parse-SDK-Android:<module>:4.4.1`.
+
 # [4.4.0](https://github.com/parse-community/Parse-SDK-Android/compare/4.3.0...4.4.0) (2026-03-11)
 
 

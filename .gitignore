@@ -34,7 +34,6 @@ build
 testData
 testCache
 server.config
-docs/
 
 # Jacoco
 jacoco.exec
@@ -46,3 +45,9 @@ jacoco.exec
 node_modules/
 npm-debug.log
 *.hprof
+
+# Custom Context MCP reports
+context-reports/
+
+# Cognitive task runtime: per-turn session transcripts churn constantly; task files stay tracked
+tasks/.sessions/

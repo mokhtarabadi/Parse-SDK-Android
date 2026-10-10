@@ -207,7 +207,7 @@ object ParseGoogleUtils {
     private fun <T> callbackOnMainThreadAsync(
         task: Task<T>,
         callback: SaveCallback,
-        reportCancellation: Boolean
+        reportCancellation: Boolean,
     ): Task<T> {
         return callbackOnMainThreadInternalAsync(task, callback, reportCancellation)
     }
@@ -220,7 +220,7 @@ object ParseGoogleUtils {
     private fun <T> callbackOnMainThreadInternalAsync(
         task: Task<T>,
         callback: Any?,
-        reportCancellation: Boolean
+        reportCancellation: Boolean,
     ): Task<T> {
         if (callback == null) {
             return task
@@ -242,7 +242,8 @@ object ParseGoogleUtils {
                             callback.done(error as? ParseException)
                         } else if (callback is LogInCallback) {
                             callback.done(
-                                task2.result as? ParseUser, error as? ParseException
+                                task2.result as? ParseUser,
+                                error as? ParseException,
                             )
                         }
                     } finally {
@@ -260,7 +261,7 @@ object ParseGoogleUtils {
                     }
                 }
                 null
-            }
+            },
         )
         return tcs.task
     }

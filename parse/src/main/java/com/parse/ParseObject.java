@@ -57,6 +57,7 @@ public class ParseObject implements Parcelable {
      * @see #unpin()
      */
     public static final String DEFAULT_PIN = "_default";
+
     /*
     REST JSON Keys
     */
@@ -2341,12 +2342,16 @@ public class ParseObject implements Parcelable {
     }
 
     /**
-     * Wraps {@link #saveEventually()} in a background thread to prevent ANR when called from
-     * the main thread with deep object graphs. The expensive {@code collectDirtyChildren}
-     * traversal runs off the calling thread; the returned {@link Task} resolves on the
-     * main thread exactly like {@link #saveEventually()}.
+     * Wraps {@link #saveEventually()} in a background thread to prevent ANR when called from the
+     * main thread with deep object graphs. The expensive {@code collectDirtyChildren} traversal
+     * runs off the calling thread; the returned {@link Task} resolves on the main thread exactly
+     * like {@link #saveEventually()}.
      *
-     * <p>Equivalent to {@code saveEventually()} but safe to call from the UI thread.</p>
+     * <p>Equivalent to {@code saveEventually()} but safe to call from the UI thread.
+     *
+     * <p>Constraint: do not mutate this object (or its children) while the save is in flight. The
+     * dirty-children traversal runs on a background thread while the operation set may still be
+     * touched on the calling thread; concurrent mutation can lose ops.
      *
      * @return A {@link Task} that is resolved when the save completes.
      */
@@ -2356,7 +2361,8 @@ public class ParseObject implements Parcelable {
             return saveEventually();
         }
         // Task 720: Use bounded background executor instead of raw new Thread per call
-        // Prevents thread storm under burst (1000+ messages) — was new Thread("ParseSaveEventually") per call
+        // Prevents thread storm under burst (1000+ messages) — was new
+        // Thread("ParseSaveEventually") per call
         final com.parse.boltsinternal.TaskCompletionSource<Void> tcs =
                 new com.parse.boltsinternal.TaskCompletionSource<>();
         com.parse.boltsinternal.Task.call(
@@ -2411,9 +2417,12 @@ public class ParseObject implements Parcelable {
             return Task.forError(new ParseException(104, "ObjectId must not be null"));
         }
 
-        // Fix Issue #1007: Warn if called on main thread to prevent ANR
+        // Fix Issue #1007: Warn if called on main thread to prevent ANR (via PLog so unit
+        // tests stay green).
         if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
-            android.util.Log.w("ParseObject", "saveEventually() called on main thread. Consider calling from background thread to prevent ANR.");
+            PLog.w(
+                    "ParseObject",
+                    "saveEventually() called on main thread. Consider calling from background thread to prevent ANR.");
         }
 
         final ParseOperationSet operationSet;

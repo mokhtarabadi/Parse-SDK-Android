@@ -19,16 +19,16 @@ import org.json.JSONObject;
 /**
  * Sticky experiment bucketing over {@link ParseConfig} definitions.
  *
- * <p>A/B testing needs per-user variation, but {@code ParseConfig} is global (one payload for
- * all clients) and disk-cached. This helper therefore never invents per-user Config: it reads
+ * <p>A/B testing needs per-user variation, but {@code ParseConfig} is global (one payload for all
+ * clients) and disk-cached. This helper therefore never invents per-user Config: it reads
  * experiment <em>definitions</em> from the shared Config and evaluates each user locally with a
  * deterministic hash. Same user, same bucket — every process, every launch, no assignment table.
  *
- * <p>Bucket math: {@code SHA-256(experimentKey + "\n" + userId)}, first 4 bytes as an unsigned
- * int, {@code mod 100}. The user is in-variant iff {@code bucket < traffic_pct}. Widening the
- * percent only admits higher buckets, so early users are never evicted mid-experiment. Shrinking
- * mid-flight corrupts the read — rotate the experiment key instead (the key is part of the hash,
- * so arms reshuffle cleanly).
+ * <p>Bucket math: {@code SHA-256(experimentKey + "\n" + userId)}, first 4 bytes as an unsigned int,
+ * {@code mod 100}. The user is in-variant iff {@code bucket < traffic_pct}. Widening the percent
+ * only admits higher buckets, so early users are never evicted mid-experiment. Shrinking mid-flight
+ * corrupts the read — rotate the experiment key instead (the key is part of the hash, so arms
+ * reshuffle cleanly).
  *
  * <p>Pure static functions, zero network, zero state. Safe to call from any thread.
  */
@@ -47,16 +47,21 @@ public final class ParseExperiments {
      * @return bucket in [0, 100), or -1 on invalid input
      */
     public static int bucketFor(String experimentKey, String userId) {
-        if (experimentKey == null || experimentKey.isEmpty() || userId == null || userId.isEmpty()) {
+        if (experimentKey == null
+                || experimentKey.isEmpty()
+                || userId == null
+                || userId.isEmpty()) {
             return -1;
         }
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest((experimentKey + "\n" + userId).getBytes(StandardCharsets.UTF_8));
-            long head = ((hash[0] & 0xFFL) << 24)
-                    | ((hash[1] & 0xFFL) << 16)
-                    | ((hash[2] & 0xFFL) << 8)
-                    | (hash[3] & 0xFFL);
+            byte[] hash =
+                    digest.digest((experimentKey + "\n" + userId).getBytes(StandardCharsets.UTF_8));
+            long head =
+                    ((hash[0] & 0xFFL) << 24)
+                            | ((hash[1] & 0xFFL) << 16)
+                            | ((hash[2] & 0xFFL) << 8)
+                            | (hash[3] & 0xFFL);
             return (int) (head % 100L);
         } catch (NoSuchAlgorithmException e) {
             return -1;
@@ -64,8 +69,8 @@ public final class ParseExperiments {
     }
 
     /**
-     * Finds an experiment definition by key inside the {@code ab_experiments} Config value.
-     * Accepts both {@link JSONArray} and {@link List} of maps (Parse decodes arrays either way).
+     * Finds an experiment definition by key inside the {@code ab_experiments} Config value. Accepts
+     * both {@link JSONArray} and {@link List} of maps (Parse decodes arrays either way).
      *
      * @param config the fetched config (null-safe, returns null)
      * @param experimentKey the experiment key to find
@@ -108,8 +113,8 @@ public final class ParseExperiments {
     /**
      * Evaluates whether a user is in-variant. Fail-closed at every step: null config, global
      * kill-switch off, missing/killed experiment, unreadable percent, or invalid bucket all yield
-     * {@code false} (control). New-vs-old targeting stays with the caller (it owns the
-     * user-joined semantics); this method judges only enabled + killed + percent + bucket.
+     * {@code false} (control). New-vs-old targeting stays with the caller (it owns the user-joined
+     * semantics); this method judges only enabled + killed + percent + bucket.
      *
      * @param config the fetched config (null-safe)
      * @param experimentKey the experiment key

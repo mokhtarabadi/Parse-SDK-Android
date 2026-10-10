@@ -32,6 +32,9 @@ class ParseHttpClient {
     private final OkHttpClient okHttpClient;
     private boolean hasExecuted;
     // Task 718: Track the in-flight Call so cancel() can interrupt it.
+    // Limitation (documented, not fixed): one slot per client. Parallel queries on the same
+    // client share it, so cancelling one may interrupt another. Per-request tracking would
+    // require threading the Call through ParseQuery state — deferred as disproportionate.
     private volatile Call currentCall;
 
     ParseHttpClient(@Nullable OkHttpClient.Builder builder) {
@@ -77,9 +80,8 @@ class ParseHttpClient {
     }
 
     /**
-     * Task 718: Cancels the in-flight OkHttp call, if any. Called from
-     * {@link ParseQuery#cancel()} to actually interrupt the HTTP request
-     * rather than just setting a Task flag.
+     * Task 718: Cancels the in-flight OkHttp call, if any. Called from {@link ParseQuery#cancel()}
+     * to actually interrupt the HTTP request rather than just setting a Task flag.
      */
     void cancel() {
         Call call = currentCall;
@@ -89,11 +91,17 @@ class ParseHttpClient {
     }
 
     /**
-     * Task 718: Cancels the in-flight call on the default REST client.
-     * This is the entry point for {@link ParseQuery#cancel()}.
+     * Task 718: Cancels the in-flight call on the default REST client. This is the entry point for
+     * {@link ParseQuery#cancel()}.
      */
     static void cancelCurrentCall() {
-        ParseHttpClient client = ParsePlugins.get().restClient();
+        // ParsePlugins is null when the SDK was never initialized (e.g. plain-JVM unit tests):
+        // nothing is in flight, so cancellation is a no-op.
+        ParsePlugins plugins = ParsePlugins.get();
+        if (plugins == null) {
+            return;
+        }
+        ParseHttpClient client = plugins.restClient();
         if (client != null) {
             client.cancel();
         }

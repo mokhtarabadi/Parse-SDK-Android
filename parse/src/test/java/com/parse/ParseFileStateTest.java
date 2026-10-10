@@ -26,7 +26,7 @@ public class ParseFileStateTest {
 
     @Before
     public void setUp() {
-        shadowOf(MimeTypeMap.getSingleton()).addExtensionMimeTypMapping("txt", "text/plain");
+        shadowOf(MimeTypeMap.getSingleton()).addExtensionMimeTypeMapping("txt", "text/plain");
     }
 
     @After

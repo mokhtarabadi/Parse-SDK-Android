@@ -9,8 +9,8 @@
 [![android min api](https://img.shields.io/badge/Android_API->=21-66c718.svg)](https://github.com/parse-community/parse-dashboard/releases)
 [![auto-release](https://img.shields.io/badge/%F0%9F%9A%80-auto--release-9e34eb.svg)](https://github.com/parse-community/parse-dashboard/releases)
 
-[![](https://jitpack.io/v/parse-community/Parse-SDK-Android.svg)](https://jitpack.io/#parse-community/Parse-SDK-Android)
-[![](https://jitpack.io/v/parse-community/Parse-SDK-Android/month.svg)](https://jitpack.io/#parse-community/Parse-SDK-Android)
+[![](https://jitpack.io/v/mokhtarabadi/Parse-SDK-Android.svg)](https://jitpack.io/#mokhtarabadi/Parse-SDK-Android)
+[![](https://jitpack.io/v/mokhtarabadi/Parse-SDK-Android/month.svg)](https://jitpack.io/#mokhtarabadi/Parse-SDK-Android)
 
 [![Backers on Open Collective](https://opencollective.com/parse-server/backers/badge.svg)][open-collective-link]
 [![Sponsors on Open Collective](https://opencollective.com/parse-server/sponsors/badge.svg)][open-collective-link]
@@ -81,7 +81,7 @@ Then, add the library to your (module:app) `build.gradle` file, replacing `lates
 
 ```gradle
 ext {
-   parseVersion = "latest.version.here"
+   parseVersion = "4.4.1"
 }
 dependencies {
     implementation "com.github.parse-community.Parse-SDK-Android:parse:$parseVersion"

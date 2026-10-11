@@ -51,13 +51,13 @@ ext {
 }
 
 dependencies {
-    api "androidx.annotation:annotation:1.4.0"
-    api "androidx.core:core:1.8.0"
+    api "androidx.annotation:annotation:1.11.0"
+    api "androidx.core:core:1.18.0"
     api "com.squareup.okhttp3:okhttp:$okhttpVersion"
     api project(':bolts-tasks')
 
     testImplementation "org.junit.jupiter:junit-jupiter:$rootProject.ext.jupiterVersion"
-    testImplementation "org.skyscreamer:jsonassert:1.5.0"
+    testImplementation "org.skyscreamer:jsonassert:1.5.3"
     testImplementation "junit:junit:$rootProject.ext.junitVersion"
     testImplementation "org.mockito:mockito-core:$rootProject.ext.mockitoCoreVersion"
     testImplementation "org.robolectric:robolectric:$rootProject.ext.robolectricVersion"

@@ -10,6 +10,7 @@ package com.parse;
 
 import android.os.Bundle;
 import android.os.Parcel;
+import android.os.SystemClock;
 import androidx.annotation.NonNull;
 import com.parse.boltsinternal.Continuation;
 import com.parse.boltsinternal.Task;
@@ -236,42 +237,63 @@ public class ParseUser extends ParseObject {
         return current != null ? current.getSessionToken() : null;
     }
 
-    // Task 720: In-memory cache for session token to avoid disk I/O per query (1000+ qps → 1000
-    // disk reads)
-    private static volatile String sCachedSessionToken = null;
-    private static volatile long sCachedTokenTimestamp = 0;
+    // Task 720 (hardened task 006): In-memory cache for session token to avoid disk I/O per
+    // query (1000+ qps → 1000 disk reads). TTL runs on the MONOTONIC clock
+    // (SystemClock.elapsedRealtime): wall-clock jumps (user, NTP, timezone) must never resurrect
+    // or prematurely evict a token. All access flows through the lock so token and timestamp
+    // update atomically; disk remains the source of truth on process restart.
+    private static final Object sTokenCacheLock = new Object();
+    private static String sCachedSessionToken = null;
+    private static long sCachedTokenUptimeMs = 0;
     private static final long TOKEN_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
-    // F6: Public method to invalidate cached session token on session invalidation
+    // Test seam for the monotonic clock (Robolectric shadows SystemClock; plain-JVM callers
+    // should prefer TTL-independent paths).
+    static long nowRealtimeMs() {
+        return SystemClock.elapsedRealtime();
+    }
+
+    // F6: Public method to invalidate cached session token on session invalidation.
+    // Note: server-side revoke (209) has no central hook in the SDK — no response interceptor
+    // consumes INVALID_SESSION_TOKEN — so callers handling auth failure must invoke this.
+    // Local logout clears it (see logOutAsync); every login path refreshes it
+    // (saveCurrentUserAsync).
     public static void invalidateCachedSessionToken() {
-        sCachedSessionToken = null;
-        sCachedTokenTimestamp = 0;
+        synchronized (sTokenCacheLock) {
+            sCachedSessionToken = null;
+            sCachedTokenUptimeMs = 0;
+        }
     }
 
     // region Getter/Setter helper methods
 
     public static Task<String> getCurrentSessionTokenAsync() {
-        String cached = sCachedSessionToken;
-        long ts = sCachedTokenTimestamp;
-        if (cached != null && System.currentTimeMillis() - ts < TOKEN_CACHE_TTL_MS) {
-            return com.parse.boltsinternal.Task.forResult(cached);
+        synchronized (sTokenCacheLock) {
+            String cached = sCachedSessionToken;
+            if (cached != null && nowRealtimeMs() - sCachedTokenUptimeMs < TOKEN_CACHE_TTL_MS) {
+                return com.parse.boltsinternal.Task.forResult(cached);
+            }
         }
         return getCurrentUserController()
                 .getCurrentSessionTokenAsync()
                 .onSuccess(
                         task -> {
-                            String token = task.getResult();
-                            sCachedSessionToken = token;
-                            sCachedTokenTimestamp = System.currentTimeMillis();
-                            return token;
+                            cacheSessionToken(task.getResult());
+                            return task.getResult();
                         });
+    }
+
+    /** Atomically stores (or clears, when null) the cached token with a fresh monotonic stamp. */
+    private static void cacheSessionToken(String token) {
+        synchronized (sTokenCacheLock) {
+            sCachedSessionToken = token;
+            sCachedTokenUptimeMs = token != null ? nowRealtimeMs() : 0;
+        }
     }
 
     // Persists a user as currentUser to disk, and into the singleton
     private static Task<Void> saveCurrentUserAsync(ParseUser user) {
-        String token = user != null ? user.getSessionToken() : null;
-        sCachedSessionToken = token;
-        sCachedTokenTimestamp = System.currentTimeMillis();
+        cacheSessionToken(user != null ? user.getSessionToken() : null);
         return getCurrentUserController().setAsync(user);
     }
 
@@ -1157,9 +1179,8 @@ public class ParseUser extends ParseObject {
             State newState = getState().newBuilder().sessionToken(null).isNew(false).build();
             isCurrentUser = false;
             setState(newState);
-            // Task 720: Clear in-memory token cache on logout
-            sCachedSessionToken = null;
-            sCachedTokenTimestamp = 0;
+            // Task 720: Clear in-memory token cache on logout (single choke point).
+            invalidateCachedSessionToken();
         }
 
         if (revoke) {

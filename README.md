@@ -2,7 +2,7 @@
 
 ---
 
-[![Build Status](https://github.com/parse-community/Parse-SDK-Android/workflows/ci/badge.svg?branch=master)](https://github.com/parse-community/Parse-SDK-Android/actions?query=workflow%3Aci+branch%3Amaster)
+[![Build Status](https://github.com/mokhtarabadi/Parse-SDK-Android/workflows/ci/badge.svg?branch=master)](https://github.com/mokhtarabadi/Parse-SDK-Android/actions?query=workflow%3Aci+branch%3Amaster)
 [![Snyk Badge](https://snyk.io/test/github/parse-community/Parse-SDK-Android/badge.svg)](https://snyk.io/test/github/parse-community/Parse-SDK-Android)
 [![codecov](https://codecov.io/gh/parse-community/Parse-SDK-Android/branch/master/graph/badge.svg)](https://codecov.io/gh/parse-community/Parse-SDK-Android)
 
@@ -77,28 +77,28 @@ Older versions of Android studio require different steps. See the following list
 
 </details>
 
-Then, add the library to your (module:app) `build.gradle` file, replacing `latest.version.here` with the version of the Parse Android SDK you would like to use. We commend always updating your app to use the [latest release](https://github.com/parse-community/Parse-SDK-Android/releases) version.
+Then, add the library to your (module:app) `build.gradle` file, replacing `latest.version.here` with the version of the Parse Android SDK you would like to use. We commend always updating your app to use the [latest release](https://github.com/mokhtarabadi/Parse-SDK-Android/releases) version.
 
 ```gradle
 ext {
    parseVersion = "4.4.1"
 }
 dependencies {
-    implementation "com.github.parse-community.Parse-SDK-Android:parse:$parseVersion"
+    implementation "com.github.mokhtarabadi.Parse-SDK-Android:parse:$parseVersion"
     // for Google login/signup support (optional)
-    implementation "com.github.parse-community.Parse-SDK-Android:google:$parseVersion"
+    implementation "com.github.mokhtarabadi.Parse-SDK-Android:google:$parseVersion"
     // for Facebook login/signup support (optional)
-    implementation "com.github.parse-community.Parse-SDK-Android:facebook:$parseVersion"
+    implementation "com.github.mokhtarabadi.Parse-SDK-Android:facebook:$parseVersion"
     // for Twitter login/signup support (optional)
-    implementation "com.github.parse-community.Parse-SDK-Android:twitter:$parseVersion"
+    implementation "com.github.mokhtarabadi.Parse-SDK-Android:twitter:$parseVersion"
     // for FCM Push support (optional)
-    implementation "com.github.parse-community.Parse-SDK-Android:fcm:$parseVersion"
+    implementation "com.github.mokhtarabadi.Parse-SDK-Android:fcm:$parseVersion"
     // for Kotlin extensions support (optional)
-    implementation "com.github.parse-community.Parse-SDK-Android:ktx:$parseVersion"
+    implementation "com.github.mokhtarabadi.Parse-SDK-Android:ktx:$parseVersion"
     // for Kotlin coroutines support (optional)
-    implementation "com.github.parse-community.Parse-SDK-Android:coroutines:$parseVersion"
+    implementation "com.github.mokhtarabadi.Parse-SDK-Android:coroutines:$parseVersion"
     // for RxJava support (optional)
-    implementation "com.github.parse-community.Parse-SDK-Android:rxjava:$parseVersion"
+    implementation "com.github.mokhtarabadi.Parse-SDK-Android:rxjava:$parseVersion"
 }
 ```
 

@@ -3,27 +3,6 @@ package com.parse.coroutines
 import com.parse.ParseConfig
 import com.parse.ParseExperiments
 import java.util.Date
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
-
-/**
- * Opt-in fetch asking the server to evaluate experiments. Verdicts stay transient on the
- * returned config and are never persisted. See `ParseConfig.getInBackgroundAbEvaluate`.
- */
-suspend fun fetchAbEvaluateConfig(): ParseConfig {
-    return suspendCoroutine { continuation ->
-        ParseConfig.getInBackgroundAbEvaluate { config, e ->
-            if (e == null && config != null) {
-                continuation.resume(config)
-            } else {
-                continuation.resumeWithException(
-                    e ?: IllegalStateException("abEvaluate fetch returned no config"),
-                )
-            }
-        }
-    }
-}
 
 /**
  * Ordered bulk evaluation against a fetched config. Pure and offline-safe (no suspension

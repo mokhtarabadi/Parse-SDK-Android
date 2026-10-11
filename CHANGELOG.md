@@ -4,8 +4,8 @@
 
 ### Added
 
-- Opt-in `ParseConfig.getInBackgroundAbEvaluate` server-verdict fetch (read-only verdicts, default path unchanged) and `ParseExperiments.evaluateAll` ordered bulk evaluation.
-- `ParseExperiments.isVariantForNewUser` targeting gate plus `ktx`/`coroutines` wrappers (Task originals retained).
+- `ParseExperiments.evaluateAll` ordered bulk evaluation over local `ParseConfig` definitions.
+- `ParseExperiments.isVariantForNewUser` targeting gate plus `ktx`/`coroutines` offline wrappers (Task originals retained).
 
 - Toolchain: AGP 9.2.1, Kotlin 1.9.22, compileSdk 36, minSdk 23, targetSdk 35, Robolectric 4.14.1, CI + JitPack on JDK 17.
 - Deps: annotation 1.11.0, core 1.18.0, rxjava 3.1.12, mockito 4.11.0, jsonassert 1.5.3 (OkHttp held at 5.4.0 — 5.5.0 needs SDK 37).

@@ -35,4 +35,9 @@
 ## 2026-10-11 — Experiments parity surface (task 009, Phases 2-3)
 - Decision: opt-in `abEvaluate` fetch with transient verdicts; `evaluateAll` ordered bulk (`-1` markers); `isVariantForNewUser` gate; ktx/coroutines wrappers; Task originals retained.
 - Reason: server parity without touching default fetch bytes or the verified hash; in-body params forced by the method-override transport; `-1` forced by control semantics.
+- Status: superseded by the 2026-10-11 full-offline mandate below (online path removed).
+
+## 2026-10-11 — Full-offline A/B mandate (task 012)
+- Decision: strip the online `abEvaluate` verdict path entirely (`ParseConfig` fetch overloads + transient verdicts, `ParseRESTConfigCommand` factory, `ParseConfigController` async, coroutines `fetchAbEvaluateConfig`, `ParseConfigAbEvaluateTest`). Keep local-only evaluation (`ParseExperiments` bucketFor/getExperiment/isVariant/evaluateAll/isVariantForNewUser + ktx/coroutines offline wrappers + parity tests). Also guard the `getExperiment` List-branch `new JSONObject(map)` so malformed entries fail closed.
+- Reason: manager order — the Parse SDK has no server `abEvaluate` support, so any online verdict path is dead surface that misleads callers; offline evaluation is the whole contract.
 - Status: accepted.

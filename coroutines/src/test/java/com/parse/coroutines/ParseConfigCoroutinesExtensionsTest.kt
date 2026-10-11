@@ -4,9 +4,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/** Unit tests for the pure experiments wrappers. The network suspend wrapper
- * (`fetchAbEvaluateConfig`) needs SDK init and is covered indirectly by the
- * controller tests in `:parse`. */
+/** Unit tests for the pure offline experiments wrappers. No network involved. */
 class ParseConfigCoroutinesExtensionsTest {
 
     @Test

@@ -106,7 +106,12 @@ public final class ParseExperiments {
                 if (item instanceof Map) {
                     Object key = ((Map<?, ?>) item).get("key");
                     if (experimentKey.equals(key)) {
-                        return new JSONObject((Map<?, ?>) item);
+                        try {
+                            return new JSONObject((Map<?, ?>) item);
+                        } catch (Exception e) {
+                            // Malformed map entry: fail closed, treat as absent.
+                            return null;
+                        }
                     }
                 }
             }

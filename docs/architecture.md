@@ -1,6 +1,6 @@
 # Architecture — Parse-SDK-Android
 
-> Version 4.4.0. 9 Gradle modules: `parse`, `bolts-tasks`, `coroutines`, `ktx`, `rxjava`, `fcm`, `google`, `facebook`, `twitter`. See `settings.gradle:1`.
+> Version 4.4.1. 9 Gradle modules: `parse`, `bolts-tasks`, `coroutines`, `ktx`, `rxjava`, `fcm`, `google`, `facebook`, `twitter`. See `settings.gradle:1`.
 
 ## Module Graph
 
@@ -36,7 +36,7 @@ ParseQuery.findInBackground → CachePolicy → NetworkQueryController | Offline
 
 ## CI
 
-- `ci.yml`: `spotlessCheck` → wrapper validation → `clean jacocoTestReport` → Codecov. JDK 11, `--no-daemon`.
+- `ci.yml`: `spotlessCheck` → wrapper validation → `clean jacocoTestReport` → Codecov. JDK 17, `--no-daemon`.
 
 ## Fork Divergence (mokhtarabadi vs upstream `9e6e18d`)
 

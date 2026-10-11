@@ -9,7 +9,6 @@
 package com.parse;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import com.parse.boltsinternal.Task;
 import java.util.Collections;
 import java.util.Date;
@@ -27,10 +26,6 @@ public class ParseConfig {
     /* package for tests */ static final TaskQueue taskQueue = new TaskQueue();
 
     /* package for tests */ final Map<String, Object> params;
-
-    // Transient server verdicts from an opt-in abEvaluate fetch. Never persisted: the abEvaluate
-    // path bypasses the current-config disk write, and PUT strips echoed verdicts server-side.
-    private JSONObject abEvaluated;
 
     /* package */ ParseConfig(Map<String, Object> params) {
         this.params = Collections.unmodifiableMap(params);
@@ -92,51 +87,6 @@ public class ParseConfig {
         return taskQueue.enqueue(ParseConfig::getAsync);
     }
 
-    /**
-     * Opt-in fetch that asks the server to evaluate experiments ({@code abEvaluate}). The default
-     * {@link #getInBackground()} path is untouched and stays byte-identical. The returned config
-     * carries server verdicts transiently (see {@link #getAbEvaluated()}); they are never written
-     * to the current-config disk cache. Offline this returns an error Task, never a cached verdict.
-     *
-     * @return A Task that is resolved with the evaluated config when the fetch completes.
-     */
-    @NonNull
-    public static Task<ParseConfig> getInBackgroundAbEvaluate() {
-        return taskQueue.enqueue(ParseConfig::getAbEvaluateAsync);
-    }
-
-    /**
-     * Opt-in abEvaluate fetch with callback. See {@link #getInBackgroundAbEvaluate()}.
-     *
-     * @param callback callback.done(config, e) is called when the fetch completes.
-     */
-    public static void getInBackgroundAbEvaluate(@Nullable ConfigCallback callback) {
-        ParseTaskUtils.callbackOnMainThreadAsync(getInBackgroundAbEvaluate(), callback);
-    }
-
-    /**
-     * Returns a copy of the transient server verdicts attached by an opt-in abEvaluate fetch, or
-     * null when this config came from the default path or the server sent none. Read-only: the
-     * returned copy is detached, so caller mutation affects nothing live.
-     *
-     * @return a copy of the {@code abEvaluated} verdict payload, or null.
-     */
-    @Nullable
-    public JSONObject getAbEvaluated() {
-        if (abEvaluated == null) {
-            return null;
-        }
-        try {
-            return new JSONObject(abEvaluated.toString());
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    /* package */ void setAbEvaluated(@Nullable JSONObject abEvaluated) {
-        this.abEvaluated = abEvaluated;
-    }
-
     private static Task<ParseConfig> getAsync(final Task<Void> toAwait) {
         return ParseUser.getCurrentSessionTokenAsync()
                 .onSuccessTask(
@@ -144,17 +94,6 @@ public class ParseConfig {
                             final String sessionToken = task.getResult();
                             return toAwait.continueWithTask(
                                     task1 -> getConfigController().getAsync(sessionToken));
-                        });
-    }
-
-    private static Task<ParseConfig> getAbEvaluateAsync(final Task<Void> toAwait) {
-        return ParseUser.getCurrentSessionTokenAsync()
-                .onSuccessTask(
-                        task -> {
-                            final String sessionToken = task.getResult();
-                            return toAwait.continueWithTask(
-                                    task1 ->
-                                            getConfigController().getAbEvaluateAsync(sessionToken));
                         });
     }
 

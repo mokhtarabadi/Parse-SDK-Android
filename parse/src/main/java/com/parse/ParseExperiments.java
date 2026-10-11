@@ -8,9 +8,13 @@
  */
 package com.parse;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.json.JSONArray;
@@ -147,5 +151,81 @@ public final class ParseExperiments {
         }
         int bucket = bucketFor(experimentKey, userId);
         return bucket >= 0 && bucket < pct;
+    }
+
+    /**
+     * Evaluates every requested experiment key against one fetched config, preserving the input key
+     * order. Each entry first checks definition existence with the same lookup {@link
+     * #getExperiment} uses: a missing or malformed definition records {@code -1} without hashing.
+     * Null keys are skipped (a null key can never match a definition and would poison downstream
+     * lookups); empty-string keys hash normally and fail closed per {@link #bucketFor} rules.
+     * Present definitions delegate to {@link #bucketFor}; any failure there records {@code -1} —
+     * the documented fail-closed control marker, never a valid in-variant bucket. A null config or
+     * null key list yields an empty map (not -1 per key).
+     *
+     * @param config the fetched config (null-safe, yields empty map)
+     * @param keys experiment keys in the order the caller wants back (null-safe)
+     * @param userId the stable user id (null-safe per key)
+     * @return an unmodifiable input-ordered map of key to bucket in [0, 100), or -1 per failed key.
+     */
+    @NonNull
+    public static Map<String, Integer> evaluateAll(
+            @Nullable ParseConfig config, @Nullable List<String> keys, @Nullable String userId) {
+        Map<String, Integer> out = new LinkedHashMap<>();
+        if (config == null || keys == null) {
+            return Collections.unmodifiableMap(out);
+        }
+        for (String key : keys) {
+            if (key == null) {
+                continue;
+            }
+            int bucket;
+            try {
+                // Definition guard: unknown or malformed keys never reach the hash.
+                if (getExperiment(config, key) == null) {
+                    bucket = -1;
+                } else {
+                    bucket = bucketFor(key, userId);
+                }
+            } catch (Exception e) {
+                bucket = -1;
+            }
+            out.put(key, bucket);
+        }
+        return Collections.unmodifiableMap(out);
+    }
+
+    /**
+     * Evaluates whether a user who joined at {@code joinedAt} is in-variant, mirroring the server
+     * targeting gate ({@code user_joined >= start_iso}). When the experiment definition carries no
+     * {@code start_iso}, there is no gate and this delegates straight to {@link #isVariant}.
+     * Fail-closed: any null input, unparseable date, or joined-before-start yields {@code false}.
+     *
+     * @param config the fetched config (null-safe)
+     * @param experimentKey the experiment key (null-safe)
+     * @param userId the stable user id (null-safe)
+     * @param joinedAt the user's join date (null-safe)
+     * @return true only when the gate passes and the user is in-variant.
+     */
+    public static boolean isVariantForNewUser(
+            @Nullable ParseConfig config,
+            @Nullable String experimentKey,
+            @Nullable String userId,
+            @Nullable java.util.Date joinedAt) {
+        if (config == null || experimentKey == null || userId == null || joinedAt == null) {
+            return false;
+        }
+        JSONObject definition = getExperiment(config, experimentKey);
+        if (definition != null) {
+            String startIso = definition.optString("start_iso", null);
+            if (startIso != null && !startIso.isEmpty()) {
+                java.util.Date start = ParseDateFormat.getInstance().parse(startIso);
+                // Unparseable or not-yet-joined: fail closed.
+                if (start == null || joinedAt.before(start)) {
+                    return false;
+                }
+            }
+        }
+        return isVariant(config, experimentKey, userId);
     }
 }

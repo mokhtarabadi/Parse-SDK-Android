@@ -22,4 +22,10 @@
 - Codec: `ParseEncoder`, `ParseDecoder`, `PointerEncoder`, `ParseParcelEncoder/Decoder`, `ParseObjectCurrentCoder`.
 - Tests: `src/test/java/com/parse/*Test.java` (~88 files, Robolectric + Mockito + MockWebServer). Run `./gradlew :parse:testDebugUnitTest --no-daemon`.
 
+## Experiment Parity (server A/B contract)
+
+- Opt-in fetch: `ParseConfig.getInBackgroundAbEvaluate()` asks the server for verdicts; the default fetch path is byte-identical and offline-safe. Verdicts ride transiently (`getAbEvaluated()`) and are never persisted.
+- Local evaluation: `ParseExperiments.bucketFor` / `isVariant` (verified against server vectors), `evaluateAll` ordered bulk with `-1` fail-closed markers, `isVariantForNewUser` `start_iso` gate.
+- Kotlin: `ktx` `evaluateAll` / `isVariantForNewUser` / `isVariant`, `coroutines` `fetchAbEvaluateConfig` / `evaluateAllExperiments` / `isVariantForNewUser` (top-level funs, unit-tested without SDK init); Task/callback originals retained.
+
 See `DECISIONS.md` (sibling) and root `docs/architecture.md`, `docs/data_model.md`.

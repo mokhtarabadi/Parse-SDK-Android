@@ -31,3 +31,8 @@
 - Decision: keep 5-min in-memory session-token TTL; no shortening without product call. Invalidate paths (`saveCurrentUserAsync` refresh, logout clear, `invalidateCachedSessionToken()`) stay as-is.
 - Reason: server-side revoke inside the window reuses the old token by design of any TTL cache; disk remains source of truth on restart.
 - Status: accepted (deferred fix, logged).
+
+## 2026-10-11 — Experiments parity surface (task 009, Phases 2-3)
+- Decision: opt-in `abEvaluate` fetch with transient verdicts; `evaluateAll` ordered bulk (`-1` markers); `isVariantForNewUser` gate; ktx/coroutines wrappers; Task originals retained.
+- Reason: server parity without touching default fetch bytes or the verified hash; in-body params forced by the method-override transport; `-1` forced by control semantics.
+- Status: accepted.

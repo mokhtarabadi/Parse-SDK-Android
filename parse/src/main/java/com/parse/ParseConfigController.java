@@ -40,4 +40,26 @@ class ParseConfigController {
                                     .continueWith(task1 -> config);
                         });
     }
+
+    /**
+     * Fetches config with server-side experiment evaluation ({@code abEvaluate}) WITHOUT persisting
+     * anything: the returned config is read-only and its verdicts never reach the current-config
+     * disk cache. Callers must invoke {@code ParseUser.invalidateCachedSessionToken} themselves
+     * when handling auth failures — there is no central 209 hook in the SDK.
+     *
+     * @param sessionToken the caller's session token, may be null when logged out.
+     * @return a Task resolving to the evaluated config with transient verdicts attached.
+     */
+    public Task<ParseConfig> getAbEvaluateAsync(String sessionToken) {
+        final ParseRESTCommand command =
+                ParseRESTConfigCommand.fetchConfigAbEvaluateCommand(sessionToken);
+        return command.executeAsync(restClient)
+                .onSuccess(
+                        task -> {
+                            JSONObject result = task.getResult();
+                            ParseConfig config = ParseConfig.decode(result, ParseDecoder.get());
+                            config.setAbEvaluated(result.optJSONObject("abEvaluated"));
+                            return config;
+                        });
+    }
 }

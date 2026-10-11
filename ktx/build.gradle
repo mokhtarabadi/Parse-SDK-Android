@@ -44,4 +44,6 @@ android {
 dependencies {
     api "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation project(":parse")
+
+    testImplementation "junit:junit:$rootProject.ext.junitVersion"
 }

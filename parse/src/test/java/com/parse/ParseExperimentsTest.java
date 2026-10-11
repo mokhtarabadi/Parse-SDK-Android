@@ -13,7 +13,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -141,5 +143,104 @@ public class ParseExperimentsTest {
                 assertTrue(ParseExperiments.isVariant(wide, "ramp", uid));
             }
         }
+    }
+
+    @Test
+    public void evaluateAllPreservesInputOrder() {
+        List<String> keys = new ArrayList<>();
+        keys.add("welcome_50");
+        keys.add("vip_for_new_10");
+        keys.add("exp-a");
+        Map<String, Integer> out = ParseExperiments.evaluateAll(null, keys, "probe-user-001");
+        assertTrue(out.isEmpty());
+        // Order check runs against single-key evaluator for determinism, not null config.
+        java.util.List<String> order =
+                new ArrayList<>(ParseExperiments.evaluateAll(configOf(), keys, "u").keySet());
+        assertEquals(keys, order);
+    }
+
+    @Test
+    public void evaluateAllFailClosedPerKey() throws JSONException {
+        List<String> keys = new ArrayList<>();
+        keys.add(null);
+        keys.add("");
+        keys.add("exp-a");
+        keys.add("missing");
+        JSONArray experiments = new JSONArray();
+        JSONObject entry = new JSONObject();
+        entry.put("key", "exp-a");
+        entry.put("traffic_pct", 100.0);
+        entry.put("killed", false);
+        experiments.put(entry);
+        ParseConfig config = configOf("ab_enabled", true, "ab_experiments", experiments);
+        Map<String, Integer> out = ParseExperiments.evaluateAll(config, keys, "probe-user-002");
+        assertFalse(out.containsKey(null));
+        assertEquals(Integer.valueOf(-1), out.get(""));
+        assertEquals(Integer.valueOf(8), out.get("exp-a"));
+        assertEquals(Integer.valueOf(-1), out.get("missing"));
+    }
+
+    @Test
+    public void evaluateAllNullInputsYieldEmpty() {
+        assertTrue(ParseExperiments.evaluateAll(null, null, null).isEmpty());
+        assertTrue(ParseExperiments.evaluateAll(configOf("ab_enabled", true), null, "u").isEmpty());
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void evaluateAllResultIsUnmodifiable() {
+        List<String> keys = new ArrayList<>();
+        keys.add("exp-a");
+        Map<String, Integer> out =
+                ParseExperiments.evaluateAll(configOf("ab_enabled", true), keys, "u");
+        out.put("hack", 99);
+    }
+
+    @Test
+    public void targetingGateNewVsOldUser() throws JSONException, java.text.ParseException {
+        JSONArray experiments = new JSONArray();
+        JSONObject entry = new JSONObject();
+        entry.put("key", "gated");
+        entry.put("traffic_pct", 100.0);
+        entry.put("killed", false);
+        entry.put("start_iso", "2026-01-01T00:00:00.000Z");
+        experiments.put(entry);
+        ParseConfig config = configOf("ab_enabled", true, "ab_experiments", experiments);
+        java.text.SimpleDateFormat fmt =
+                new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        fmt.setTimeZone(new java.util.SimpleTimeZone(0, "GMT"));
+        java.util.Date joined = fmt.parse("2026-06-01T00:00:00.000Z");
+        java.util.Date old = fmt.parse("2025-06-01T00:00:00.000Z");
+        assertTrue(ParseExperiments.isVariantForNewUser(config, "gated", "u1", joined));
+        assertFalse(ParseExperiments.isVariantForNewUser(config, "gated", "u1", old));
+    }
+
+    @Test
+    public void targetingFallbackWithoutStartIso() throws JSONException {
+        JSONArray experiments = new JSONArray();
+        JSONObject entry = new JSONObject();
+        entry.put("key", "open");
+        entry.put("traffic_pct", 100.0);
+        entry.put("killed", false);
+        experiments.put(entry);
+        ParseConfig config = configOf("ab_enabled", true, "ab_experiments", experiments);
+        // No start_iso: plain variant semantics (bucket 20 < 100 → true).
+        assertTrue(
+                ParseExperiments.isVariantForNewUser(
+                        config, "open", "vftE0NKr0C", new java.util.Date()));
+    }
+
+    @Test
+    public void targetingFailClosedOnBadDate() throws JSONException {
+        JSONArray experiments = new JSONArray();
+        JSONObject entry = new JSONObject();
+        entry.put("key", "baddate");
+        entry.put("traffic_pct", 100.0);
+        entry.put("killed", false);
+        entry.put("start_iso", "not-a-date");
+        experiments.put(entry);
+        ParseConfig config = configOf("ab_enabled", true, "ab_experiments", experiments);
+        assertFalse(
+                ParseExperiments.isVariantForNewUser(
+                        config, "baddate", "u1", new java.util.Date()));
     }
 }

@@ -2,12 +2,12 @@ apply plugin: "com.android.library"
 apply plugin: "maven-publish"
 
 android {
-    compileSdk 35
+    compileSdk rootProject.ext.compileSdkVersion
     namespace "com.parse.fcm"
 
     defaultConfig {
-        minSdk 23
-        targetSdk 35
+        minSdk rootProject.ext.minSdkVersion
+        targetSdk rootProject.ext.targetSdkVersion
     }
 
     buildFeatures {

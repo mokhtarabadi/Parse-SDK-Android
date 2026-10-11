@@ -3,12 +3,12 @@ apply plugin: "maven-publish"
 
 
 android {
-    compileSdk 35
+    compileSdk rootProject.ext.compileSdkVersion
     namespace "com.parse.rxjava"
 
     defaultConfig {
-        minSdk 23
-        targetSdk 35
+        minSdk rootProject.ext.minSdkVersion
+        targetSdk rootProject.ext.targetSdkVersion
     }
 
     buildFeatures {

@@ -43,4 +43,5 @@ Point README dependency coordinates, CI badge, and releases link at the fork (mo
 ## Factual Git Diff
 
 <!-- BEGIN_GIT_DIFF -->
+**Factual Git Diff:** Stored in Commit Hash: `f2c23bcf5a741f501d9e4fdf4b90694875a215e2`
 <!-- END_GIT_DIFF -->

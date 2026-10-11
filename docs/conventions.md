@@ -6,7 +6,7 @@
 - Kotlin: `ktlint` with `no-wildcard-imports` disabled; same whitespace rules. Target `**/*.kt`.
 - Gradle/Markdown/gitignore: `misc` format block; XML: `xml` format block.
 - Commands: check `./gradlew spotlessCheck --no-daemon`; fix `./gradlew spotlessApply --no-daemon`.
-- Test runtime: Robolectric 4.14.1 (supports current targetSdk); Mockito 4.6.1, MockWebServer via OkHttp BOM. Real unit gate: `:parse:testDebugUnitTest`.
+- Test runtime: Robolectric 4.14.1 (supports current targetSdk); Mockito 4.11.0, MockWebServer following `$okhttpVersion`. Real unit gate: `:parse:testDebugUnitTest`.
 
 ## Language & API
 

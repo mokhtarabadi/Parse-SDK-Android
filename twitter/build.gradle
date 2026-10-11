@@ -1,6 +1,8 @@
 apply plugin: "com.android.library"
 apply plugin: "maven-publish"
 
+group = "com.github.mokhtarabadi.Parse-SDK-Android"
+
 android {
     compileSdk rootProject.ext.compileSdkVersion
     namespace "com.parse.twitter"
@@ -12,6 +14,12 @@ android {
 
     buildFeatures {
         buildConfig true
+    }
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
     }
 
     lint {
@@ -47,4 +55,15 @@ dependencies {
 
     testImplementation "junit:junit:$rootProject.ext.junitVersion"
     testImplementation "org.mockito:mockito-core:$rootProject.ext.mockitoCoreVersion"
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components["release"]
+                artifactId = "twitter"
+            }
+        }
+    }
 }

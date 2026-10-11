@@ -1,6 +1,8 @@
 apply plugin: "com.android.library"
 apply plugin: "maven-publish"
 
+group = "com.github.mokhtarabadi.Parse-SDK-Android"
+
 android {
     compileSdk rootProject.ext.compileSdkVersion
     namespace "com.parse.facebook"
@@ -12,6 +14,12 @@ android {
 
     buildFeatures {
         buildConfig true
+    }
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
     }
 
     lint {
@@ -47,4 +55,15 @@ dependencies {
     testImplementation "org.mockito:mockito-core:$rootProject.ext.mockitoCoreVersion"
     testImplementation "org.mockito:mockito-inline:$rootProject.ext.mockitoCoreVersion"
     testImplementation "org.robolectric:robolectric:$rootProject.ext.robolectricVersion"
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components["release"]
+                artifactId = "facebook"
+            }
+        }
+    }
 }

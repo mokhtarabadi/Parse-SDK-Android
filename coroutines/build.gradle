@@ -1,4 +1,7 @@
 apply plugin: "com.android.library"
+apply plugin: "maven-publish"
+
+group = "com.github.mokhtarabadi.Parse-SDK-Android"
 
 android {
     compileSdk rootProject.ext.compileSdkVersion
@@ -11,6 +14,12 @@ android {
 
     buildFeatures {
         buildConfig true
+    }
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
     }
 
     buildTypes {
@@ -41,4 +50,15 @@ dependencies {
     implementation project(":parse")
 
     testImplementation "junit:junit:$rootProject.ext.junitVersion"
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components["release"]
+                artifactId = "coroutines"
+            }
+        }
+    }
 }

@@ -6,7 +6,7 @@
 [![Snyk Badge](https://snyk.io/test/github/parse-community/Parse-SDK-Android/badge.svg)](https://snyk.io/test/github/parse-community/Parse-SDK-Android)
 [![codecov](https://codecov.io/gh/parse-community/Parse-SDK-Android/branch/master/graph/badge.svg)](https://codecov.io/gh/parse-community/Parse-SDK-Android)
 
-[![android min api](https://img.shields.io/badge/Android_API->=21-66c718.svg)](https://github.com/parse-community/parse-dashboard/releases)
+[![android min api](https://img.shields.io/badge/Android_API->=23-66c718.svg)](https://github.com/parse-community/parse-dashboard/releases)
 [![auto-release](https://img.shields.io/badge/%F0%9F%9A%80-auto--release-9e34eb.svg)](https://github.com/parse-community/parse-dashboard/releases)
 
 [![](https://jitpack.io/v/mokhtarabadi/Parse-SDK-Android.svg)](https://jitpack.io/#mokhtarabadi/Parse-SDK-Android)
@@ -42,6 +42,7 @@ The Parse Android SDK has the following Android API and [Gradle Plugin][gradle-p
 | 1.26        | < API 16          | API 29              | 3.6.2         |
 | 2.0         | >= API 16         | API 30              | 4.2.2         |
 | 2.1         | >= API 21         | API 31              | 7.0.3         |
+| 4.x         | >= API 23         | API 35              | 9.2.1         |
 
 ## Add Dependency
 

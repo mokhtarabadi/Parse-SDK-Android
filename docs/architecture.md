@@ -1,6 +1,6 @@
 # Architecture — Parse-SDK-Android
 
-> Version 4.4.1. 9 Gradle modules: `parse`, `bolts-tasks`, `coroutines`, `ktx`, `rxjava`, `fcm`, `google`, `facebook`, `twitter`. See `settings.gradle:1`.
+> Version 4.4.4. 9 Gradle modules: `parse`, `bolts-tasks`, `coroutines`, `ktx`, `rxjava`, `fcm`, `google`, `facebook`, `twitter`. See `settings.gradle:1`.
 
 ## Module Graph
 

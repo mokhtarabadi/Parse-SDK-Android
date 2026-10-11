@@ -1,6 +1,6 @@
 # Changelog (fork: mokhtarabadi/Parse-SDK-Android)
 
-## [Unreleased] — 4.4.1
+## [Unreleased] — 4.4.4
 
 ### Added
 
@@ -10,7 +10,7 @@
 - Toolchain: AGP 9.2.1, Kotlin 1.9.22, compileSdk 36, minSdk 23, targetSdk 35, Robolectric 4.14.1, CI + JitPack on JDK 17.
 - Deps: annotation 1.11.0, core 1.18.0, rxjava 3.1.12, mockito 4.11.0, jsonassert 1.5.3 (OkHttp held at 5.4.0 — 5.5.0 needs SDK 37).
 - Core: cancellable `ParseQuery` HTTP, background `saveEventually`, cached session token, sticky `ParseExperiments` bucketing.
-- JitPack: `com.github.mokhtarabadi.Parse-SDK-Android:<module>:4.4.1`.
+- JitPack: `com.github.mokhtarabadi.Parse-SDK-Android:<module>:4.4.4`.
 
 # [4.4.0](https://github.com/parse-community/Parse-SDK-Android/compare/4.3.0...4.4.0) (2026-03-11)
 

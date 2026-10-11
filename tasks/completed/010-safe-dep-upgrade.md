@@ -1,5 +1,5 @@
-**File:** `tasks/qa/010-safe-dep-upgrade.md`
-**Status:** qa
+**File:** `tasks/completed/010-safe-dep-upgrade.md`
+**Status:** closed
 **Source:** manager direct order (no Brain)
 **Type:** chore
 **Seat:** Senior Programmer
@@ -52,17 +52,5 @@ Upgrade dependencies within safe same-major lines, confirm every artifact resolv
 ## Factual Git Diff
 
 <!-- BEGIN_GIT_DIFF -->
-```diff
-diff --git a/gradle/wrapper/gradle-wrapper.properties b/gradle/wrapper/gradle-wrapper.properties
-index 221c4f9..566107b 100644
---- a/gradle/wrapper/gradle-wrapper.properties
-+++ b/gradle/wrapper/gradle-wrapper.properties
-@@ -1,5 +1,5 @@
- distributionBase=GRADLE_USER_HOME
- distributionPath=wrapper/dists
--distributionUrl=https\://services.gradle.org/distributions/gradle-9.4.1-bin.zip
-+distributionUrl=https\://services.gradle.org/distributions/gradle-9.8.1-bin.zip
- zipStoreBase=GRADLE_USER_HOME
- zipStorePath=wrapper/dists
-```
+**Factual Git Diff:** Stored in Commit Hash: `0657e6606ea2440ed959b3b6bb74de2b1adbef47`
 <!-- END_GIT_DIFF -->

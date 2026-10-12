@@ -1,7 +1,7 @@
 apply plugin: "com.android.library"
 apply plugin: "maven-publish"
 
-group = "com.github.mokhtarabadi.Parse-SDK-Android"
+group = findProperty("centralGroup") ?: "com.github.mokhtarabadi.Parse-SDK-Android"
 
 android {
     compileSdk rootProject.ext.compileSdkVersion
@@ -19,6 +19,7 @@ android {
     publishing {
         singleVariant("release") {
             withSourcesJar()
+            withJavadocJar()
         }
     }
 
@@ -63,6 +64,28 @@ afterEvaluate {
             release(MavenPublication) {
                 from components["release"]
                 artifactId = "facebook"
+                pom {
+                                name = "Parse-SDK-Android ${project.name}"
+                                description = "Parse SDK for Android"
+                                url = "https://github.com/mokhtarabadi/Parse-SDK-Android"
+                                licenses {
+                                    license {
+                                        name = "BSD License"
+                                        url = "https://github.com/mokhtarabadi/Parse-SDK-Android/blob/master/LICENSE"
+                                    }
+                                }
+                                developers {
+                                    developer {
+                                        id = "mokhtarabadi"
+                                        name = "Mohammad Reza Mokhtarabadi"
+                                    }
+                                }
+                                scm {
+                                    connection = "scm:git:git://github.com/mokhtarabadi/Parse-SDK-Android.git"
+                                    developerConnection = "scm:git:ssh://github.com/mokhtarabadi/Parse-SDK-Android.git"
+                                    url = "https://github.com/mokhtarabadi/Parse-SDK-Android"
+                                }
+                            }
             }
         }
     }

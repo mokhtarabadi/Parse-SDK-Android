@@ -40,6 +40,32 @@ afterEvaluate {
         publications {
             boltsPublication(MavenPublication) {
                 from components.java
+                groupId = findProperty("centralGroup") ?: "Parse-SDK-Android"
+                artifactId = "bolts-tasks"
+                artifact sourcesJar
+                artifact javadocJar
+                pom {
+                    name = "Parse-SDK-Android bolts-tasks"
+                    description = "Parse SDK for Android"
+                    url = "https://github.com/mokhtarabadi/Parse-SDK-Android"
+                    licenses {
+                        license {
+                            name = "BSD License"
+                            url = "https://github.com/mokhtarabadi/Parse-SDK-Android/blob/master/LICENSE"
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = "mokhtarabadi"
+                            name = "Mohammad Reza Mokhtarabadi"
+                        }
+                    }
+                    scm {
+                        connection = "scm:git:git://github.com/mokhtarabadi/Parse-SDK-Android.git"
+                        developerConnection = "scm:git:ssh://github.com/mokhtarabadi/Parse-SDK-Android.git"
+                        url = "https://github.com/mokhtarabadi/Parse-SDK-Android"
+                    }
+                }
             }
         }
     }

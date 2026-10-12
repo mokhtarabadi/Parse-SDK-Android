@@ -82,7 +82,7 @@ Then, add the library to your (module:app) `build.gradle` file, replacing `lates
 
 ```gradle
 ext {
-   parseVersion = "4.4.4"
+   parseVersion = "4.4.5"
 }
 dependencies {
     implementation "com.github.mokhtarabadi.Parse-SDK-Android:parse:$parseVersion"

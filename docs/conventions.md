@@ -23,7 +23,7 @@
 
 ## Versioning & Releases
 
-- Semantic versioning via semantic-release (`release.config.js`, `.releaserc/`); `gradle.properties` holds the version (currently 4.4.4). CHANGELOG.md is generated — do not hand-edit release entries.
+- Semantic versioning via semantic-release (`release.config.js`, `.releaserc/`); `gradle.properties` holds the version (currently 4.4.5). CHANGELOG.md is generated — do not hand-edit release entries.
 - JitPack coordinates: `com.github.mokhtarabadi.Parse-SDK-Android:<module>:<version>`.
 
 ## Task Files & Memory
